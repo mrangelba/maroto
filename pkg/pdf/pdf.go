@@ -24,8 +24,8 @@ const (
 type Maroto interface {
 	// Grid System
 	Row(height float64, closure func())
-	Col(width uint, closure func())
-	ColSpace(gridSize uint)
+	Col(width float64, closure func())
+	ColSpace(gridSize float64)
 
 	// Registers
 	RegisterHeader(closure func())
@@ -60,6 +60,8 @@ type Maroto interface {
 	GetCurrentOffset() float64
 	SetPageMargins(left, top, right float64)
 	GetPageMargins() (left float64, top float64, right float64, bottom float64)
+	SetMaxGridSum(maxGridSum float64)
+	GetMaxGridSum() float64
 
 	// Fonts
 	AddUTF8Font(familyStr string, styleStr consts.Style, fileStr string)
@@ -114,6 +116,7 @@ type PdfMaroto struct {
 	orientation       consts.Orientation
 	pageSize          consts.PageSize
 	defaultFontFamily string
+	maxGridSum        float64
 }
 
 // NewMarotoCustomSize creates a Maroto instance returning a pointer to PdfMaroto
@@ -193,7 +196,7 @@ func (s *PdfMaroto) AddPage() {
 	maxOffsetPage := int(pageHeight - bottom - top)
 
 	s.Row(float64(maxOffsetPage-totalOffsetY), func() {
-		s.ColSpace(uint(consts.MaxGridSum))
+		s.ColSpace(s.GetMaxGridSum())
 	})
 }
 
@@ -235,6 +238,18 @@ func (s *PdfMaroto) SetPageMargins(left, top, right float64) {
 	}
 
 	s.Pdf.SetMargins(left, defaultTopMargin, right)
+}
+
+func (s *PdfMaroto) SetMaxGridSum(maxGridSum float64) {
+	s.maxGridSum = maxGridSum
+}
+
+func (s *PdfMaroto) GetMaxGridSum() float64 {
+	if s.maxGridSum == 0 {
+		return consts.MaxGridSum
+	}
+
+	return s.maxGridSum
 }
 
 // GetPageMargins returns the set page margins. Comes in order of Left, Top, Right, Bottom
@@ -399,12 +414,12 @@ func (s *PdfMaroto) Row(height float64, closure func()) {
 // Col create a column inside a row and enable to add
 // components inside. Maroto do not support recursive
 // columns or rows inside columns.
-func (s *PdfMaroto) Col(width uint, closure func()) {
+func (s *PdfMaroto) Col(width float64, closure func()) {
 	if width == 0 {
-		width = uint(consts.MaxGridSum)
+		width = s.GetMaxGridSum()
 	}
 
-	percent := float64(width) / consts.MaxGridSum
+	percent := float64(width) / s.GetMaxGridSum()
 
 	pageWidth, _ := s.Pdf.GetPageSize()
 	left, _, right, _ := s.Pdf.GetMargins()
@@ -420,7 +435,7 @@ func (s *PdfMaroto) Col(width uint, closure func()) {
 }
 
 // ColSpace create an empty column inside a row.
-func (s *PdfMaroto) ColSpace(gridSize uint) {
+func (s *PdfMaroto) ColSpace(gridSize float64) {
 	s.Col(gridSize, func() {})
 }
 
@@ -679,7 +694,7 @@ func (s *PdfMaroto) footer() {
 	maxOffsetPage := int(pageHeight - bottom - top)
 
 	s.Row(float64(maxOffsetPage-totalOffsetY), func() {
-		s.ColSpace(uint(consts.MaxGridSum))
+		s.ColSpace(s.GetMaxGridSum())
 	})
 
 	if s.footerClosure != nil {
@@ -694,7 +709,7 @@ func (s *PdfMaroto) header() {
 	s.SetBackgroundColor(color.NewWhite())
 
 	s.Row(s.marginTop, func() {
-		s.ColSpace(uint(consts.MaxGridSum))
+		s.ColSpace(s.GetMaxGridSum())
 	})
 
 	if s.headerClosure != nil {

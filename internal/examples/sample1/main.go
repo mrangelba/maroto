@@ -174,11 +174,11 @@ func main() {
 
 	m.TableList(headerSmall, smallContent, props.TableList{
 		ContentProp: props.TableListContent{
-			GridSizes: []uint{3, 6, 3},
+			GridSizes: []float64{3, 6, 3},
 			Color:     color.Color{100, 0, 0},
 		},
 		HeaderProp: props.TableListContent{
-			GridSizes: []uint{3, 6, 3},
+			GridSizes: []float64{3, 6, 3},
 		},
 		AlternatedBackground: &color.Color{
 			Red:   200,
@@ -203,10 +203,10 @@ func main() {
 		ContentProp: props.TableListContent{
 			Family:    consts.Courier,
 			Style:     consts.Italic,
-			GridSizes: []uint{5, 5, 2},
+			GridSizes: []float64{5, 5, 2},
 		},
 		HeaderProp: props.TableListContent{
-			GridSizes: []uint{5, 5, 2},
+			GridSizes: []float64{5, 5, 2},
 			Family:    consts.Courier,
 			Style:     consts.BoldItalic,
 			Color:     color.Color{100, 0, 0},

@@ -271,7 +271,7 @@ func TestTableList_Create_HappyWithCustomCellColor(t *testing.T) {
 	sut.Create(headers, contents, consts.Arial, props.TableList{
 		ContentProp: props.TableListContent{
 			Size:                            8,
-			GridSizes:                       []uint{3, 4, 2, 3},
+			GridSizes:                       []float64{3, 4, 2, 3},
 			CellTextColorChangerColumnIndex: 0,
 			CellTextColorChangerFunc: func(cellValue string) color.Color {
 				if strings.Contains(cellValue, "i =") {
