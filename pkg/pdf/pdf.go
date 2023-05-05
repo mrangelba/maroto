@@ -27,6 +27,9 @@ type Maroto interface {
 	Col(width float64, closure func())
 	ColSpace(gridSize float64)
 
+	ColWithBorder(width float64, border consts.BorderSide, closure func())
+	ColSpaceWithBorder(gridSize float64, border consts.BorderSide)
+
 	// Registers
 	RegisterHeader(closure func())
 	RegisterFooter(closure func())
@@ -426,7 +429,7 @@ func (s *PdfMaroto) Col(width float64, closure func()) {
 	widthPerCol := (pageWidth - right - left) * percent
 
 	s.colWidth = widthPerCol
-	s.createColSpace(widthPerCol)
+	s.createColSpace(widthPerCol, string(consts.BorderUnset))
 
 	// This closure has the components to be executed.
 	closure()
@@ -437,6 +440,34 @@ func (s *PdfMaroto) Col(width float64, closure func()) {
 // ColSpace create an empty column inside a row.
 func (s *PdfMaroto) ColSpace(gridSize float64) {
 	s.Col(gridSize, func() {})
+}
+
+// Col create a column inside a row and enable to add
+// components inside. Maroto do not support recursive
+// columns or rows inside columns.
+func (s *PdfMaroto) ColWithBorder(width float64, border consts.BorderSide, closure func()) {
+	if width == 0 {
+		width = s.GetMaxGridSum()
+	}
+
+	percent := float64(width) / s.GetMaxGridSum()
+
+	pageWidth, _ := s.Pdf.GetPageSize()
+	left, _, right, _ := s.Pdf.GetMargins()
+	widthPerCol := (pageWidth - right - left) * percent
+
+	s.colWidth = widthPerCol
+	s.createColSpace(widthPerCol, string(border))
+
+	// This closure has the components to be executed.
+	closure()
+
+	s.xColOffset += s.colWidth
+}
+
+// ColSpace create an empty column inside a row.
+func (s *PdfMaroto) ColSpaceWithBorder(gridSize float64, border consts.BorderSide) {
+	s.ColWithBorder(gridSize, border, func() {})
 }
 
 // Text create a text inside a cell.
@@ -653,11 +684,15 @@ func (s *PdfMaroto) GetDefaultFontFamily() string {
 	return s.defaultFontFamily
 }
 
-func (s *PdfMaroto) createColSpace(actualWidthPerCol float64) {
-	border := ""
+func (s *PdfMaroto) createColSpace(actualWidthPerCol float64, borderStr string) {
+	border := borderStr
 
-	if s.debugMode {
-		border = "1"
+	if borderStr == string(consts.BorderUnset) {
+		border = ""
+	}
+
+	if s.debugMode && borderStr == string(consts.BorderUnset) {
+		border = string(consts.BorderAll)
 	}
 
 	s.Pdf.CellFormat(actualWidthPerCol, s.rowHeight, "", border, 0, "C", !s.backgroundColor.IsWhite(), 0, "")

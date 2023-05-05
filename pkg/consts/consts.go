@@ -38,6 +38,18 @@ const (
 	Middle Align = "M"
 )
 
+type BorderSide string
+
+const (
+	BorderSideTop    BorderSide = "T"
+	BorderSideRight  BorderSide = "R"
+	BorderSideBottom BorderSide = "B"
+	BorderSideLeft   BorderSide = "L"
+	BorderAll        BorderSide = "1"
+	BorderNone       BorderSide = ""
+	BorderUnset      BorderSide = "0"
+)
+
 // Orientation is a representation of a page orientation.
 type Orientation string
 
